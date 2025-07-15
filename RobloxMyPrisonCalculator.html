@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Prison Roblox Prisoner Necessities Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px;
+      background-color: #f9fafb;
+      max-width: 900px;
+      margin: auto;
+      color: #333;
+    }
+
+    h2, h3 {
+      color: #1f2937;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input[type="number"] {
+      width: 120px;
+      padding: 8px;
+      margin-top: 4px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e5e7eb;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f3f4f6;
+    }
+
+    tr:hover {
+      background-color: #e0f2fe;
+    }
+
+    .section {
+      margin-top: 2.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-group label {
+      flex: 1 1 200px;
+    }
+
+    .checkboxes {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🧮 My Prison - Prisoner Necessities Calculator</h2>
+
+  <div class="input-group">
+    <label>
+      Number of Prisoners:
+      <input type="number" id="prisonersInput" value="100" min="1">
+    </label>
+  </div>
+
+  <div class="checkboxes">
+    <label><input type="checkbox" id="mediumSecurity"> Include Medium Security Prisoners</label>
+    <label><input type="checkbox" id="highSecurity"> Include High Security Prisoners</label>
+  </div>
+
+  <div class="section">
+    <h3>🏗️ Prison Necessities</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Necessity</th>
+          <th>Required Amount</th>
+        </tr>
+      </thead>
+      <tbody id="necessitiesTable"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h3>👮 Staff Requirements</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Staff Type</th>
+          <th>Required Amount</th>
+        </tr>
+      </thead>
+      <tbody id="staffTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const necessities = [
+      { name: "Beds", per: 1, alt: { name: "bunk beds", per: 2 } },
+      { name: "Toilets", per: 2 },
+      { name: "Showers", per: 2 },
+      { name: "Buffets", per: 12 },
+      { name: "Eating Table", per: 4 },
+      { name: "Sports Equipment (Weight Bench / Treadmill)", per: 2 },
+    ];
+
+    const staff = [
+      { name: "Chefs", per: 15 },
+      { name: "Guards", per: 5 },
+    ];
+
+    const mediumSecurityExtras = [
+      { name: "Push-up Mats (Medium Security)", per: 5 },
+      { name: "Isolation Chairs (MSP)", per: 10 },
+    ];
+
+    const highSecurityExtras = [
+      { name: "Pull-up Bars (High Security)", per: 3 },
+      { name: "Guard Towers", per: 15, isStaff: true },
+      { name: "Isolation Chairs (HSP)", per: 10 },
+    ];
+
+    function calculateNecessities() {
+      const prisonerCount = parseInt(document.getElementById('prisonersInput').value) || 0;
+      const isMedium = document.getElementById('mediumSecurity').checked;
+      const isHigh = document.getElementById('highSecurity').checked;
+
+      const necessitiesBody = document.getElementById('necessitiesTable');
+      const staffBody = document.getElementById('staffTable');
+      necessitiesBody.innerHTML = "";
+      staffBody.innerHTML = "";
+
+      const allNecessities = [...necessities];
+      const allStaff = [...staff];
+
+      if (isMedium) {
+        mediumSecurityExtras.forEach(item => allNecessities.push(item));
+      }
+
+      if (isHigh) {
+        highSecurityExtras.forEach(item => {
+          if (item.isStaff) {
+            allStaff.push(item);
+          } else {
+            allNecessities.push(item);
+          }
+        });
+      }
+
+      // Populate Necessities
+      allNecessities.forEach(item => {
+        const required = Math.ceil(prisonerCount / item.per);
+        let output = `${required}`;
+        if (item.alt) {
+          const alt = Math.ceil(prisonerCount / item.alt.per);
+          output += ` or ${alt} ${item.alt.name}`;
+        }
+        necessitiesBody.insertAdjacentHTML('beforeend', `<tr><td>${item.name}</td><td>${output}</td></tr>`);
+      });
+
+      // Populate Staff
+      allStaff.forEach(item => {
+        const required = Math.ceil(prisonerCount / item.per);
+        staffBody.insertAdjacentHTML('beforeend', `<tr><td>${item.name}</td><td>${required}</td></tr>`);
+      });
+    }
+
+    document.getElementById('prisonersInput').addEventListener('input', calculateNecessities);
+    document.getElementById('mediumSecurity').addEventListener('change', calculateNecessities);
+    document.getElementById('highSecurity').addEventListener('change', calculateNecessities);
+
+    calculateNecessities();
+  </script>
+
+</body>
+</html>
